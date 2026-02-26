@@ -32,7 +32,7 @@ parent_folder/
 `run` - Runs an interactive CLI for a certain agent,  
 `web` - Starts a FastAPI server with Web UI for agents.
 
-# Projects
+# Examples
 
 ## 1. Basic Agent
 #### Introduction to the simplest form of ADK agents. Learn how to create a basic agent that can respond to user queries.
@@ -64,7 +64,7 @@ parent_folder/
   #### We can integrate tools from other popular external libraries, like: `LangChain Tools, CrewAI Tools`
 
 - ## Tool Agent Implementaion
-    - ### Check the code file `/2-tool-agent/agent.py`. There are two sections.
+    - ### Check the code file `/2-tool-agent/tool_agent/agent.py`. There are two sections.
         ### 1. Built-in google_search Tool
           It searches the internet for queries asked in the prompt and gives the response.
           Here are some sample questions to test.
@@ -91,3 +91,29 @@ parent_folder/
         - Make sure to give a clarity docstring so the LLM understands how to use the tool effectively
 
 
+## 3. LiteLLM
+  - #### This needs OpenRouter which is paid. So skipping it for now.
+
+## 4. Structured Outputs in ADK
+#### ADK allows you to define structured data formats for agent inputs and outputs using Pydantic models:
+
+1. `Controlled Output Format: Using output_schema ensures the LLM produces responses in a consistent JSON structure.`
+2. `Data Validation: Pydantic validates that all required fields are present and correctly formatted.`
+3. `Improved Downstream Processing: Structured outputs are easier to handle in downstream applications or by other agents.`
+
+#### Note: Use structured outputs when you need guaranteed format consistency for integration with other systems or agents.
+
+ - ## Key Concepts: Structured Data Exchange
+    Structured outputs are part of ADK's broader support for structured data exchange, which includes:
+
+    1. **input_schema**: Define expected input format (not used in this example)
+    2. **output_schema**: Define required output format (used in this example)
+    3. **output_key**: Store the result in session state for use by other agents (used in this example)
+
+- ## Email Agent Implementaion
+- ### Check the code file `/4-structured-outputs/email_agent/agent.py`.
+  The agent generates an email based on the pydantic model (EmailContent) and sends it as response.
+  Here are some sample questions to test.
+  1. `Write a professional email to my team about the upcoming project deadline that has been extended by two weeks.`
+  2. `Draft an email to a client explaining that we need additional information before we can proceed with their order.`
+  3. `Create an email to schedule a meeting with the marketing department to discuss the new product launch strategy.`
