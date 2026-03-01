@@ -117,3 +117,45 @@ parent_folder/
   1. `Write a professional email to my team about the upcoming project deadline that has been extended by two weeks.`
   2. `Draft an email to a client explaining that we need additional information before we can proceed with their order.`
   3. `Create an email to schedule a meeting with the marketing department to discuss the new product launch strategy.`
+
+## 5. Sessions and State
+  - ### Sessions in ADK provide a way to:
+
+    1. **Maintain State**: Store and access user data, preferences, and other information between interactions
+    2. **Track Conversation History**: Automatically record and retrieve message history
+    3. **Personalize Responses**: Use stored information to create more contextual and personalized agent experiences
+
+- ## QNA Agent Implementaion
+- ### Check the code file `/5-sessions-and-state/question_answering_agent/agent.py` and `/5-sessions-and-state/basic_stateful_session.py`
+  The agent answers questions based on the given iniital state preferences of the user.
+  Here are some sample questions to test.
+  1. `What sports do I like to play?.`
+  2. `What is my profession?`
+  3. `What are some of my hobbies?`
+
+## 6. Persistent Storage in ADK
+ - ### What is Persistent Storage in ADK?
+     In previous examples, we used `InMemorySessionService` which stores session data only in memory - this data is lost when the application stops. For real-world applications, we'll often need our agents to remember user information and conversation history long-term. This is where persistent storage comes in.
+
+     ADK provides the `DatabaseSessionService` that allows you to store session data in a SQL database, ensuring:
+
+    1. **Long-term Memory**: Information persists across application restarts
+    2. **Consistent User Experiences**: Users can continue conversations where they left off
+    3. **Multi-user Support**: Different users' data remains separate and secure
+    4. **Scalability**: Works with production databases for high-scale deployments
+
+- ## Reminder Agent Implementaion
+- ### Check the code file `/6-persistent-storage/memory_agent/agent.py`, `/6-persistent-storage/utils.py` and `/6-persistent-storage/main.py`
+  The reminder agent remembers the previous conversations and does following: <br>
+  - `Add new reminders` <br>
+  - `View existing reminders` <br>
+  - `Update reminders` <br>
+  - `Delete reminders` <br>
+  - `Update the user's name` <br>
+- Here are some sample questions to test
+  1. `Can you add a reminder for my meeting tomorrow at 10 AM?`
+  2. `Remind me to call my friend on Friday evening.`
+  3. `What reminders do I currently have?`
+  4. `Update reminder 1 to meeting tomorrow at 1 PM`
+  5. `Delete 2nd reminder`
+  6. `Change my name to ASH`
