@@ -159,3 +159,42 @@ parent_folder/
   4. `Update reminder 1 to meeting tomorrow at 1 PM`
   5. `Delete 2nd reminder`
   6. `Change my name to ASH`
+
+## 7. Multi-Agent System
+  - ### What is Multi-Agent System in ADK? 
+    A Multi-Agent System is an advanced pattern in the Agent Development Kit (ADK) that allows multiple specialized agents to work together to handle complex tasks. Each agent can focus on a specific domain or functionality, and they can collaborate through delegation and communication to solve problems that would be difficult for a single agent.
+
+  - ### Key Points to Implement Multi-Agent System
+    1. There should be a `Single Root Agent` (main entry point) which manages all other `Sub Agents`
+    2. The Multi-Agent System Structure should be as follows:
+        ```
+        parent_folder/
+        ├── root_agent_folder/           # Main agent package (e.g., "manager")
+        │   ├── __init__.py              # Must import agent.py
+        │   ├── agent.py                 # Must define root_agent
+        │   ├── .env                     # Environment variables
+        │   └── sub_agents/              # Directory for all sub-agents
+        │       ├── __init__.py          # Empty or imports sub-agents
+        │       ├── agent_1_folder/      # Sub-agent package
+        │       │   ├── __init__.py      # Must import agent.py
+        │       │   └── agent.py         # Must define an agent variable
+        │       ├── agent_2_folder/
+        │       │   ├── __init__.py
+        │       │   └── agent.py
+        │       └── ...
+        ```
+    3. All the sub_agents are passed as a list assigned to `sub_agents` argument in the root_agent.
+      Ex: `sub_agents=[sub_agent1, sub_agent2]`
+    4. A `sub_agent` which uses the adk's built-in tool is always passed as a tool argument via `AgentTool` Class. (check `7-multi-agent/manager/agent.py` for code reference)
+    5. Make sure to mention at the subjects agent's prompts that `If users asks anything else then to Delegate to root_agent` (This makes the agent not to stuck in a deadlock loop) 
+  
+  - ## Multi-Agent Manager Implementaion
+    - ### Check the code files `/7-multi-agent/manager/agent.py` and `/7-multi-agent/manager/sub_agents/*`
+    - ### In terminal Change Directory to `/7-multi-agent/manager` and run the command `adk web` to start the server.
+    - Here are some sample questions to test
+      1. `Can you tell me about the stock market today?`
+      2. `Tell me something funny about programming`
+      3. `What's the latest tech news?`
+      4. `What time is it right now?`
+      5. `Open youtube.com` (Negative Case)
+  
