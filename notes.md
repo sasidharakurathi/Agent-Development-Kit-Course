@@ -198,3 +198,28 @@ parent_folder/
       4. `What time is it right now?`
       5. `Open youtube.com` (Negative Case)
   
+## 8. Stateful Multi-Agent
+  - ### What is Stateful Multi-Agent System in ADK? 
+    A Stateful Multi-Agent System building upon the Multi-Agent pattern by incorporating persistent state management across interactions. It allows agents to not only collaborate but also maintain a long-term memory of user preferences, purchase history, and conversation logs, providing a more personalized and context-aware experience.
+
+  - ### Key Points to Implement Stateful Multi-Agent System
+    1. **Persistent State Management**: Uses `DatabaseSessionService` to store session data (state and history) in a SQL database (e.g., SQLite, MySQL).
+    2. **State Tracking**: Agents can read and write to the session state (e.g., `state['interaction_history']`, `state['user_name']`).
+    3. **Specialized Agent Delegation**: The Root Agent routes queries to specialized sub-agents (Policy, Sales, Support, etc.) based on user intent and state.
+    4. **Context-Aware Prompting**: Use state variables (like `{user_name}`, `{purchased_courses}`) directly in agent instructions to personalize responses.
+    5. **History Tracking**: Implement utility functions to append user queries and agent responses to an `interaction_history` list stored in the state.
+
+  - ## Customer Service Multi-Agent Implementaion
+    - ### Check the code files `/8-stateful-multi-agent/customer_service_agent/agent.py` and the `sub_agents` directory.
+    - ### Implementation Details:
+      - `main.py`: Sets up `DatabaseSessionService` and the `Runner`.
+      - `utils.py`: Contains logic for updating interaction history and handling asynchronous agent calls.
+      - `sales_agent`: Includes a `purchase_course` tool that dynamically updates the `purchased_courses` in the session state.
+    - ### In terminal Change Directory to `/8-stateful-multi-agent` and run the command `python main.py` to start the interactive chat.
+    - Here are some sample questions to test:
+      1. `What's my name?` (Requires session initial state)
+      2. `How much does the AI Marketing Platform course cost?` (Delegates to Sales Agent)
+      3. `I want to buy the AI Marketing Platform course.` (Triggers `purchase_course` tool)
+      4. `What courses have I purchased?` (Checks updated state)
+      5. `Can I get a refund for my course?` (Delegates to Order Agent)
+
