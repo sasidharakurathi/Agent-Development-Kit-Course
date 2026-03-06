@@ -223,3 +223,182 @@ parent_folder/
       4. `What courses have I purchased?` (Checks updated state)
       5. `Can I get a refund for my course?` (Delegates to Order Agent)
 
+## 9. Callbacks in ADK
+  - ## What are Callbacks in ADK?
+    Callbacks are functions that execute at specific points in an agent's execution flow. They allow us to:
+
+    1. **Monitor and Log**: Track agent activity and performance metrics
+    2. **Filter Content**: Block inappropriate requests or responses
+    3. **Transform Data**: Modify inputs and outputs in the agent workflow
+    4. **Implement Security Policies**: Enforce compliance and safety measures
+    5. **Add Custom Logic**: Insert business-specific processing into the agent flow
+
+    ADK provides several types of callbacks that can be attached to different components of your agent system.
+  
+  - ## Callback Parameters and Context
+    Each type of callback provides access to specific context objects that contain valuable information about the current execution state. Understanding these parameters is key to building effective callbacks.
+    ### CallbackContent
+    The `CallbackContext` object is provided to all callback types and contains:
+      - **`agent_name`**: The name of the agent being executed
+      - **`invocation_id`**: A unique identifier for the current agent invocation
+      - **`state`**: Access to the session state, allowing you to read/write persistent data
+      - **`app_name`**: The name of the application
+      - **`user_id`**: The ID of the current user
+      - **`session_id`**: The ID of the current session
+    
+      ```python
+      def my_callback(callback_context: CallbackContext, ...):
+          # Access the state to store or retrieve data
+          user_name = callback_context.state.get("user_name", "Unknown")
+          
+          # Log the current agent and invocation
+          print(f"Agent {callback_context.agent_name} executing (ID: {callback_context.invocation_id})")
+      ```
+    ### ToolContext (for Tool Callbacks)
+    The `ToolContext` object is provided to tool callbacks and contains:
+      - **`agent_name`**: The name of the agent that initiated the tool call
+      - **`state`**: Access to the session state, allowing tools to read/modify shared data
+      - **`properties`**: Additional properties specific to the tool execution
+
+      ```python
+      def before_tool_callback(tool: BaseTool, args: Dict[str, Any], tool_context: ToolContext):
+          # Record tool usage in state
+          tools_used = tool_context.state.get("tools_used", [])
+          tools_used.append(tool.name)
+          tool_context.state["tools_used"] = tools_used
+      ```
+
+    ### LlmRequest (for Model Callbacks)
+    The `LlmRequest` object is provided to the before_model_callback and contains:
+
+      - **`contents`**: List of Content objects representing the conversation history
+      - **`generation_config`**: Configuration for the model generation
+      - **`safety_settings`**: Safety settings for the model
+      - **`tools`**: Tools provided to the model
+    
+    ```python
+    def before_model_callback(callback_context: CallbackContext, llm_request: LlmRequest):
+        # Get the last user message for analysis
+        last_message = None
+        for content in reversed(llm_request.contents):
+            if content.role == "user" and content.parts:
+                last_message = content.parts[0].text
+                break
+                
+        # Analyze the user's message
+        if last_message and contains_sensitive_info(last_message):
+            # Return a response that bypasses the model call
+            return LlmResponse(...)
+    ```
+
+    ### LlmResponse (for Model Callbacks)
+    The `LlmResponse` object is returned from the model and provided to the after_model_callback:
+      - **`content`**: Content object containing the model's response
+      - **`tool_calls`**: Any tool calls the model wants to make
+      - **`usage_metadata`**: Metadata about the model usage (tokens, etc.)
+    
+    ```python
+    def after_model_callback(callback_context: CallbackContext, llm_response: LlmResponse):
+        # Access the model's text response
+        if llm_response.content and llm_response.content.parts:
+            response_text = llm_response.content.parts[0].text
+            
+            # Modify the response
+            modified_text = transform_text(response_text)
+            llm_response.content.parts[0].text = modified_text
+            
+            return llm_response
+      ```
+  - ## Types of Callbacks
+    There are 3 main types  of callbacks
+    1. `Agent Callbacks`
+        - **Before Agent Callback**: Runs at the start of agent processing
+        - **After Agent Callback**: Runs after the agent completes processing
+    2. `Model Callbacks`
+        - **Before Model Callback**: Intercepts requests before they reach the LLM
+        - **After Model Callback**: Modifies responses after they come from the LLM
+    3. `Tool Callbacks`
+        - **Before Tool Callback**: Modifies tool arguments or skips tool execution
+        - **After Tool Callback**: Enhances tool responses with additional information
+  
+  - ## Callbacks Example
+    - Check the three `before_after_agent`, `before_after_model` and `before_after_tool` agents in `9-callbacks` directory
+    - Make sure to add .env files in the three agent root directories
+    - Go to `9-callbacks` directory and run `adk web`
+
+    ### Test Queries for `before_after_agent`
+     - Any interaction will demonstrate the agent callbacks, which log requests and measure duration. 
+
+    ### Test Queries for `before_after_model`
+     - This website sucks, can you help me fix it?
+     - Everything about this project sucks.
+     - What's the biggest problem with machine learning today?
+     - Why is debugging so difficult in complex systems?
+     - I have a problem with my code that's very difficult to solve.
+
+    ### Test Queries for `before_after_tool`
+     - What is the capital of USA?
+     - What is the capital of Merica?
+     - What is the capital of restricted?
+     - What is the capital of the United States?
+     - What is the capital of France?
+  
+## 10. Sequential Agents in ADK
+  - ## What are Sequential Agents?
+    Sequential agents are a type of agent in ADK that allows you to create a chain of agents that work together to complete a task. Each agent in the chain can process the output of the previous agent and pass it on to the next agent.
+  
+  - ## Sequential Agents Example
+    - Check the `recipe_agent` in `10-sequential-agent` directory
+    - `recipe_agent` is a root agent that contains three sub-agents
+        - `greet_select_dish`: Greets the user and selects dish
+        - `list_ingredients`: Lists ingredients of the selected dish
+        - `cooking_guide`: Provides cooking guide for the selected dish
+    - Make sure to add .env file in the `recipe_agent` root directory
+    - Go to `10-sequential-agent` directory and run `adk web`
+
+    ### Test Queries for `recipe_agent`
+     - Hello.
+     - How to cook Chicken Biriyani?
+     - How to cook Pasta?
+     - How to cook Pizza?
+     - How to make French Fries at home?
+
+## 11. Parallel Agents in ADK
+  - ## What are Parallel Agents?
+    Parallel agents are a type of agent in ADK that allows you to create a chain of agents that work together to complete a task. Each agent in the chain can process the output of the previous agent and pass it on to the next agent.
+  
+  - ## Parallel Agents Example
+    - Check the `system_monitor_agent` in `11-parallel-agent` directory
+    - `system_monitor_agent` is a root agent that contains four sub-agents
+        - `cpu_info_agent`: Gets CPU information
+        - `disk_info_agent`: Gets disk information
+        - `memory_info_agent`: Gets memory information
+        - `synthesizer_agent`: Synthesizes the information from the other three agents
+    - Make sure to add .env file in the `system_monitor_agent` root directory
+    - Go to `11-parallel-agent` directory and run `adk web`
+
+    ### Test Queries for `system_monitor_agent`
+     - Check my system health
+     - Provide a comprehensive system report with recommendations
+     - Is my system running out of memory or disk space?
+
+## 12. Loop Agent in ADK
+  - ## What are Loop Agents?
+    Loop agents are a type of agent sequence in ADK that allows you to execute a group of agents iteratively until a specific condition is met or a maximum number of iterations is reached. This is useful for tasks that require refinement, reviewing, or cyclic processes.
+  
+  - ## Loop Agents Example
+    - Check the `linkedin_post_agent` in `12-loop-agent` directory
+    - `linked_in_post_generation_pipeline` is a root sequential agent that contains an initial agent and a loop agent:
+        - `initial_post_generator`: Generates the initial draft of the LinkedIn post.
+        - `refinement_loop`: A Loop Agent that iteratively refines the post, containing two sub-agents:
+            - `post_reviewer`: Reviews the draft and provides feedback.
+            - `post_refiner`: Refines the draft based on the reviewer's feedback.
+    - Make sure to add .env file in the `linkedin_post_agent` root directory
+    - Go to `12-loop-agent/linkedin_post_agent` directory and run `adk web`
+
+    ### Test Queries for `linked_in_post_generation_pipeline`
+     - Generate a LinkedIn post about what I've learned from @aiwithbrandon's Agent Development Kit tutorial.<br><br>
+
+<hr>
+
+# Course Completed 😊
